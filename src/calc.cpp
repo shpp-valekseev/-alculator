@@ -20,7 +20,6 @@ using namespace std;
  * Fractional numbers must be entered using the '.'
  *
  * Example of writing the equation: -19+(sin(-0.5))*((7^4)/5)+sqrt(4)
- *
  */
 
 // function prototypes
@@ -32,7 +31,7 @@ bool isOperator(char ch);
 bool isFunction(string func);
 
 /**
- * The main method of the program, which prompts the user for the
+ * The main function of the program, which prompts the user for the
  * equation to be solved, and displays the result on the screen.
  */
 int main() {
@@ -51,11 +50,11 @@ int main() {
 }
 
 /**
- * Method: polishInvertedRecord
+ * Function: polishInvertedRecord
  * Usage: VectorSHPP<string> polishRecord = polishInvertedRecord(string equation)
  * ______________________________________________________________________________
  *
- * The method accepts a string entered by the user, and allows it puts priority
+ * The function accepts a string entered by the user, and allows it puts priority
  * actions. Using an algorithm sorting station. Returns a vector of strings, where
  * string is decomposed by the algorithm reverse Polish notation.
  *
@@ -126,7 +125,7 @@ VectorSHPP<string> polishInvertedRecord(string equation){
 }
 
 /**
- * Method: opPreced
+ * Function: opPreced
  * Usage: int priority = opPreced(char ch)
  * __________________________________________
  *
@@ -152,7 +151,7 @@ int opPreced(char ch) {
 }
 
 /**
- * Method: isNumber
+ * Function: isNumber
  * Usage: if(isNumber(char ch))
  * ______________________________________________________
  *
@@ -163,11 +162,14 @@ int opPreced(char ch) {
  * @return - true if character is number
  */
 bool isNumber(char ch) {
-    return (('0' <= ch) && (ch <= '9')) || (ch == '.');
+    if((('0' <= ch) && (ch <= '9')) || (ch == '.')){
+        return true;
+    }
+    return false;
 }
 
 /**
- * Method: isOperator
+ * Function: isOperator
  * Usage: if(isOperator(char ch))
  * ______________________________________________________
  *
@@ -178,11 +180,14 @@ bool isNumber(char ch) {
  * @return - true if character is operator
  */
 bool isOperator(char ch) {
-    return (ch == '+' || ch == '-' || ch == '/' || ch == '*' || ch == '^' || (ch >= 'a' && ch <= 'z'));
+    if((ch == '+' || ch == '-' || ch == '/' || ch == '*' || ch == '^' || (ch >= 'a' && ch <= 'z'))){
+        return true;
+    }
+    return false;
 }
 
 /**
- * Method: isFunction
+ * Function: isFunction
  * Usage: if(isFunction(string func))
  * ______________________________________________________
  *
@@ -193,11 +198,16 @@ bool isOperator(char ch) {
  * @return - true if string is function
  */
 bool isFunction(string func) {
-    return (func == "sin" || func == "cos" || func == "sqrt" || func == "tan");
+    for(int i = 0; i < func.size(); i++){
+        if(func[i] < 'a' || func[i] > 'z'){
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
- * Method: getResult
+ * Function: getResult
  * Usage: double result = getResult(VectorSHPP<string> & records)
  * ____________________________________________________________
  *
@@ -239,24 +249,21 @@ double getResult(VectorSHPP<string> & records){
         } else if (isOperator(element[0])){
             double firstOperand = stack.pop();
             double secondOperand = stack.pop();
-            switch (element[0]){
-            case '+':
+            if(element[0] == '+'){
                 res = secondOperand + firstOperand;
-                break;
-            case '-':
+            } else if (element[0] == '-'){
                 res = secondOperand - firstOperand;
-                break;
-            case '*':
+            } else if (element[0] == '*'){
                 res = secondOperand * firstOperand;
-                break;
-            case '/':
+            } else if (element[0] == '/'){
                 res = secondOperand / firstOperand;
-                break;
-            case '^':
+            } else if (element[0] == '^'){
                 res = pow(secondOperand, firstOperand);
-                break;
             }
             stack.push(res);
+        } else {
+            cout << "Incorrect data entered" << endl;
+            exit(1);
         }
     }
 
