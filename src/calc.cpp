@@ -25,7 +25,7 @@ using namespace std;
 // function prototypes
 VectorSHPP<string> polishInvertedRecord(string equation);
 double getResult(VectorSHPP<string> & records);
-int opPreced(char ch);
+int operatorPriority(char ch);
 bool isNumber(char ch);
 bool isOperator(char ch);
 bool isFunction(string func);
@@ -54,7 +54,7 @@ int main() {
  * Usage: VectorSHPP<string> polishRecord = polishInvertedRecord(string equation)
  * ______________________________________________________________________________
  *
- * The function accepts a string entered by the user, and allows it puts priority
+ * Function accepts a string entered by the user, and allows it puts priority
  * actions. Using an algorithm sorting station. Returns a vector of strings, where
  * string is decomposed by the algorithm reverse Polish notation.
  *
@@ -65,68 +65,50 @@ VectorSHPP<string> polishInvertedRecord(string equation){
     StackSHPP<string> stack;
     string output("");
     VectorSHPP<string> res;
-    int length = equation.length();
-    for (int i = 0; i < length; ++i){
-        // Checking whether an incoming character part number
-        if (isNumber(equation[i]) || (equation[i] == '-' && i == 0) || (i > 0 && equation[i-1] == '(' && equation[i] == '-')){
-            // check whether a character is, the latest in a number of
-            if(i + 1 == length || isOperator(equation[i+1]) || equation[i+1] == '(' || equation[i+1] == ')'){
-                output = output + equation[i];
+    for (int i = 0; i < equation.length(); i++){
+        if (isNumber(equation[i]) || (equation[i] == '-' && i == 0) || (i > 0 && equation[i-1] == '(' && equation[i] == '-')){ // Checking whether an incoming character part number
+            if(i == equation.length() - 1 || !isNumber(equation[i + 1])){ // check whether a character is, the latest in a number of
+                output += equation[i];
                 res.add(output);
                 output = "";
             } else {
-                output = output + equation[i];
+                output += equation[i];
             }
-            // Check whether the incoming part of the function symbol
-        } else if (equation[i] >= 'a' && equation[i] <= 'z'){
-            // check whether a character is, the latest in a function
-            if(equation[i+1] == '('){
-                output = output + equation[i];
+        } else if (equation[i] >= 'a' && equation[i] <= 'z'){ // Check whether the incoming part of the function symbol
+            if(equation[i+1] == '('){ // check whether a character is, the latest in a function
+                output += equation[i];
                 stack.push(output);
                 output = "";
             } else {
-                output = output + equation[i];
+                output += equation[i];
             }
-        }
-        else if (equation[i] == '(') {
+        } else if (equation[i] == '(') {
             stack.push("(");
-        }
-        else if (equation[i] == ')') {
+        } else if (equation[i] == ')') {
             while (stack.peek() != "(") {
-                output = output + stack.pop();
-                res.add(output);
-                output = "";
+                res.add(stack.pop());
             }
             stack.pop();
-        }
-        else if (isOperator(equation[i])) {
-            while (!stack.isEmpty() && (opPreced(stack.peek()[0]) >= opPreced(equation[i]))) {
-                output = output + stack.pop();
-                res.add(output);
-                output = "";
+        } else if (isOperator(equation[i])) {
+            while (!stack.isEmpty() && (operatorPriority(stack.peek()[0]) >= operatorPriority(equation[i]))) {
+                res.add(stack.pop());
             }
             stack.push(charToString(equation[i]));
         } else {
-            throw "Error incoming data";
+            cout << "Error incoming data" << endl;
+            break;
         }
     }
-    // Output characters that are left in the stack
-    int stackSize = stack.size();
-    if (stackSize > 0) {
-        for (int i = 0; i < stackSize - 1; ++i) {
-            output = output + stack.pop();
-            res.add(output);
-            output = "";
-        }
-        output = output + stack.pop();
-        res.add(output);
+    // Takes out remaining values from the stack
+    while(!stack.isEmpty()){
+        res.add(stack.pop());
     }
     return res;
 }
 
 /**
- * Function: opPreced
- * Usage: int priority = opPreced(char ch)
+ * Function: operatorPriority
+ * Usage: int priority = operatorPriority(char ch)
  * __________________________________________
  *
  * Sets priority of symbols
@@ -134,20 +116,18 @@ VectorSHPP<string> polishInvertedRecord(string equation){
  * @param ch - symbol
  * @return - priority symbol
  */
-int opPreced(char ch) {
+int operatorPriority(char ch) {
+    int res = 0;
     if(ch >= 'a' && ch <= 'z'){
-        return 4;
+        res = 4;
     } else if (ch == '^'){
-        return 3;
+        res = 3;
     } else if (ch == '*' || ch == '/'){
-        return 2;
+        res = 2;
     } else if (ch == '+' || ch == '-'){
-        return 1;
-    } else {
-        // in the case of an incoming character '('
-        return 0;
+        res = 1;
     }
-
+    return res;
 }
 
 /**
@@ -162,7 +142,7 @@ int opPreced(char ch) {
  * @return - true if character is number
  */
 bool isNumber(char ch) {
-    if((('0' <= ch) && (ch <= '9')) || (ch == '.')){
+    if(('0' <= ch && ch <= '9') || (ch == '.')){
         return true;
     }
     return false;
@@ -234,17 +214,17 @@ double getResult(VectorSHPP<string> & records){
 
             if(element == "sin"){
                 res = sin(operand);
-                stack.push(res);
             } else if (element == "cos"){
                 res = cos(operand);
-                stack.push(res);
             } else if (element == "sqrt"){
                 res = sqrt(operand);
-                stack.push(res);
             } else if (element == "tan"){
                 res = tan(operand);
-                stack.push(res);
+            } else {
+                cout << "Error: unknown operator" << endl;
+                exit(1);
             }
+            stack.push(res);
 
         } else if (isOperator(element[0])){
             double firstOperand = stack.pop();
@@ -266,8 +246,6 @@ double getResult(VectorSHPP<string> & records){
             exit(1);
         }
     }
-
     // in the stack is only one value - the result
-    double res = stack.pop();
-    return res;
+    return stack.pop();
 }
