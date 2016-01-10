@@ -142,10 +142,7 @@ int operatorPriority(char ch) {
  * @return - true if character is number
  */
 bool isNumber(char ch) {
-    if(('0' <= ch && ch <= '9') || (ch == '.')){
-        return true;
-    }
-    return false;
+    return (('0' <= ch && ch <= '9') || (ch == '.'));
 }
 
 /**
@@ -160,10 +157,7 @@ bool isNumber(char ch) {
  * @return - true if character is operator
  */
 bool isOperator(char ch) {
-    if((ch == '+' || ch == '-' || ch == '/' || ch == '*' || ch == '^' || (ch >= 'a' && ch <= 'z'))){
-        return true;
-    }
-    return false;
+    return (ch == '+' || ch == '-' || ch == '/' || ch == '*' || ch == '^' || (ch >= 'a' && ch <= 'z'));
 }
 
 /**
